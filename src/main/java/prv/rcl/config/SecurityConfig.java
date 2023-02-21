@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import prv.rcl.controller.CustomerAuthenticationFilter;
+import prv.rcl.controller.JwtAuthenticationFilter;
 
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +40,7 @@ public class SecurityConfig {
 
     /**
      * 配置 过滤器链的构造配置
+     * 根据注入的 AuthenticationManagerBuilder 配置 {@link CustomerAuthenticationFilter}
      *
      * @param http SecurityFilterChain 构造器
      * @return securityFilterChain
@@ -58,15 +60,8 @@ public class SecurityConfig {
 
         http.formLogin()
                 .loginProcessingUrl("/login")
-                .permitAll()
-                .successHandler((request, response, authentication) -> {
-                    setResponseType(response);
-                    ResponseEntity<String> body = ResponseEntity.ok()
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body("登录成功!");
-                    String res = new ObjectMapper().writeValueAsString(body);
-                    response.getWriter().write(res);
-                });
+                .permitAll();
+
         http.exceptionHandling()
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                     setResponseType(response);
@@ -80,7 +75,10 @@ public class SecurityConfig {
                 .clearAuthentication(true)
                 .logoutSuccessHandler((request, response, authentication) -> {
 //                    setResponseType(response);
-                    ResponseEntity<String> body = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body("注销成功!");
+                    ResponseEntity<String> body = ResponseEntity
+                            .ok()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body("注销成功!");
                     String s = new ObjectMapper().writeValueAsString(body);
                     response.getWriter().write(s);
                 }).logoutRequestMatcher(new OrRequestMatcher(Arrays.asList(
@@ -90,6 +88,8 @@ public class SecurityConfig {
                 )));
         http.userDetailsService(userDetailsService);
         CustomerAuthenticationFilter cusF = customerAuthenticationFilter(builder);
+        JwtAuthenticationFilter authenticationFilter = jwtAuthenticationFilter(builder);
+        http.addFilterBefore(authenticationFilter,UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(cusF, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -100,6 +100,14 @@ public class SecurityConfig {
         CustomerAuthenticationFilter filter = new CustomerAuthenticationFilter();
         filter.setAuthenticationManager(builder.getObject());
         return filter;
+    }
+
+    JwtAuthenticationFilter jwtAuthenticationFilter(
+            AuthenticationManagerBuilder builder) {
+        JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter();
+        authenticationFilter.setHeader("token");
+        authenticationFilter.setAuthenticationManager(builder.getObject());
+        return authenticationFilter;
     }
 
     @Bean

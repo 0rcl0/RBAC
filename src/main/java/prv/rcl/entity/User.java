@@ -1,5 +1,6 @@
 package prv.rcl.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -54,6 +55,7 @@ public class User extends PubColumn {
     private Long deptId;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<URRelationship> relationships;
 
     public String getName() {
@@ -139,7 +141,6 @@ public class User extends PubColumn {
                 ", mobile='" + mobile + '\'' +
                 ", status=" + status +
                 ", deptId=" + deptId +
-                ", relationships=" + relationships +
                 '}';
     }
 }

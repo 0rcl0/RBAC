@@ -2,6 +2,7 @@ package prv.rcl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
 import org.apiguardian.api.API;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,14 @@ import prv.rcl.dao.UserRoleDao;
 import prv.rcl.entity.Role;
 import prv.rcl.entity.URRelationship;
 import prv.rcl.entity.User;
+import prv.rcl.utils.JwtUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
 
 @SpringBootTest
 class RbacApplicationTests {
@@ -29,11 +34,14 @@ class RbacApplicationTests {
     private final RoleDao roleDao;
     private final UserRoleDao userRoleDao;
 
+    private final JwtUtils jwtUtils;
+
     @Autowired
-    public RbacApplicationTests(UserDao userDao,RoleDao roleDao,UserRoleDao userRoleDao) {
+    public RbacApplicationTests(UserDao userDao,RoleDao roleDao,UserRoleDao userRoleDao,JwtUtils jwtUtils) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.userRoleDao = userRoleDao;
+        this.jwtUtils = jwtUtils;
     }
 
     @Test
@@ -92,5 +100,17 @@ class RbacApplicationTests {
         ResponseEntity<Object> entity = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(null);
         String s = new ObjectMapper().writeValueAsString(entity);
         System.out.println(s);
+    }
+
+    @Test
+    void testJwtUtils() throws JsonProcessingException {
+        Optional<User> user = userDao.findByName("rcl111222");
+        String userJson = new ObjectMapper().writeValueAsString(user.get());
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("user",userJson);
+        String s = jwtUtils.generateToke(map);
+        System.out.println(s);
+        Claims claimsFromToken = jwtUtils.getAllClaimsFromToken(s);
+        jwtUtils.verity(s);
     }
 }

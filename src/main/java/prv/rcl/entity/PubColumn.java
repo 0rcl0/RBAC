@@ -1,5 +1,7 @@
 package prv.rcl.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -25,12 +27,14 @@ public class PubColumn {
     private Long CreateBy;
 
     @CreatedDate
+    @JsonIgnore
     private LocalDateTime createTime;
 
     @LastModifiedBy
     private Long lastUpdateBy;
 
     @LastModifiedDate
+    @JsonIgnore
     private LocalDateTime lastUpdateTime;
 
     @Column(name = "del_flag",columnDefinition = "tinyint default 0 comment '0:未删除,1:删除'")
