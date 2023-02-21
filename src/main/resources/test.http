@@ -1,1 +1,7 @@
-GET http://localhost:8080
+POST http://localhost:8080/login
+Content-Type: application/json; UTF-8
+
+{
+  "username": "rcl111222",
+  "password": "123456"
+}

@@ -52,19 +52,19 @@ public class SysUser implements UserDetails {
     @Override
     public boolean isAccountNonExpired() {
         assert user != null;
-        return user.isDelFlag();
+        return user.getStatus();
     }
 
     @Override
     public boolean isAccountNonLocked() {
         assert user != null;
-        return user.isDelFlag();
+        return user.getStatus();
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
         assert user != null;
-        return user.isDelFlag();
+        return user.getStatus();
     }
 
     @Override

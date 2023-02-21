@@ -13,6 +13,12 @@ import prv.rcl.entity.User;
 import prv.rcl.service.UserService;
 
 import java.util.Optional;
+
+/**
+ * 用户登录服务实现，
+ * 用户密码更新服务实现。
+ * {@code @Service} 注入容器
+ */
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService, UserDetailsPasswordService {
 
@@ -33,7 +39,7 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
 
     @Override
     public void delete(User entity) {
-        LOGGER.info("delete user:{}",entity.getId());
+        LOGGER.info("delete user:{}", entity.getId());
         userDao.delete(entity);
     }
 
@@ -46,10 +52,19 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
     public UserDetails updatePassword(UserDetails user, String newPassword) {
         SysUser sysUser = (SysUser) user;
         User us = sysUser.getUser();
+//        boolean hasAdminRole = us.getRelationships().stream()
+//                .map(URRelationship::getRole)
+//                .map(Role::getName)
+//                .anyMatch(s -> s.equalsIgnoreCase("ADMIN"));
+//        // 不执行 update Password 操作
+//        if(hasAdminRole) {
+//            return sysUser;
+//        }else{
         us.setPassword(newPassword);
-        LOGGER.debug("user{} update password",us.getId());
+        LOGGER.debug("user{} update password", us.getId());
         userDao.save(us);
         return sysUser;
+//        }
     }
 
     @Override
