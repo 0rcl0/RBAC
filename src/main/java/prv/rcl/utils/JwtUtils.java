@@ -15,21 +15,21 @@ import java.util.UUID;
 public class JwtUtils {
 
     @Value("${jwt.issuer}")
-    private static String ISSUER; // project-name
+    private String ISSUER; // project-name
 
     @Value("${jwt.audience}")
-    private static String AUDIENCE; // web
+    private String AUDIENCE; // web
 
     @Value("${jwt.header}")
-    private static String AUTH_HEADER;
+    private String AUTH_HEADER;
 
-    private static SignatureAlgorithm alg = SignatureAlgorithm.HS256;
+    private SignatureAlgorithm alg = SignatureAlgorithm.HS256;
 
-    private static long EXPIRE_TIME = 3 * 24 * 60 * 60 * 1000;
+    private long EXPIRE_TIME = 3 * 24 * 60 * 60 * 1000;
 
 //    private final String SECRET = ISSUER;
 
-    public static String generateToke(Map<String, Object> claimMaps) {
+    public String generateToke(Map<String, Object> claimMaps) {
 
         long now = System.currentTimeMillis();
         Date expireDate = new Date(now + EXPIRE_TIME);
@@ -50,12 +50,12 @@ public class JwtUtils {
                 .compact();
     }
 
-    public static boolean verity(String token) {
+    public boolean verity(String token) {
         Claims claims = getAllClaimsFromToken(token);
         if (null == claims) {
             return false;
         }
-        if(null == claims.getExpiration()) {
+        if (null == claims.getExpiration()) {
             return true;
         } else {
             Date expiration = claims.getExpiration();
@@ -69,12 +69,12 @@ public class JwtUtils {
         return claims.getSubject();
     }
 
-    public static String getClaimFormToken(String token, String key) {
+    public String getClaimFormToken(String token, String key) {
         Claims claims = getAllClaimsFromToken(token);
         return (String) claims.get(key);
     }
 
-    public static Claims getAllClaimsFromToken(String token) {
+    public Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(ISSUER)
                 .parseClaimsJws(token)

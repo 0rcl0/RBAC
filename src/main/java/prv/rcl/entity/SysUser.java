@@ -15,6 +15,7 @@ public class SysUser implements UserDetails {
 
     private User user;
 
+
     public SysUser(User user) {
         this.user = user;
     }

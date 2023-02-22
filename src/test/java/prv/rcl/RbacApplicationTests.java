@@ -3,7 +3,6 @@ package prv.rcl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
-import org.apiguardian.api.API;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +14,7 @@ import prv.rcl.dao.RoleDao;
 import prv.rcl.dao.UserDao;
 import prv.rcl.dao.UserRoleDao;
 import prv.rcl.entity.Role;
+import prv.rcl.entity.SysUser;
 import prv.rcl.entity.URRelationship;
 import prv.rcl.entity.User;
 import prv.rcl.utils.JwtUtils;
@@ -22,7 +22,6 @@ import prv.rcl.utils.JwtUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -37,7 +36,7 @@ class RbacApplicationTests {
     private final JwtUtils jwtUtils;
 
     @Autowired
-    public RbacApplicationTests(UserDao userDao,RoleDao roleDao,UserRoleDao userRoleDao,JwtUtils jwtUtils) {
+    public RbacApplicationTests(UserDao userDao, RoleDao roleDao, UserRoleDao userRoleDao, JwtUtils jwtUtils) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.userRoleDao = userRoleDao;
@@ -87,8 +86,7 @@ class RbacApplicationTests {
     }
 
     @Test
-    void test1()
-    {
+    void test1() {
         List<URRelationship> allByUserId = userRoleDao.findAllByUser_Id(1L);
         Optional<User> optionalUser = userDao.findById(1L);
     }
@@ -105,9 +103,10 @@ class RbacApplicationTests {
     @Test
     void testJwtUtils() throws JsonProcessingException {
         Optional<User> user = userDao.findByName("rcl111222");
+        SysUser sysUser = new SysUser(user.get());
         String userJson = new ObjectMapper().writeValueAsString(user.get());
         HashMap<String, Object> map = new HashMap<>();
-        map.put("user",userJson);
+        map.put("user", userJson);
         String s = jwtUtils.generateToke(map);
         System.out.println(s);
         Claims claimsFromToken = jwtUtils.getAllClaimsFromToken(s);

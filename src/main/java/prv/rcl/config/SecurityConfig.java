@@ -19,6 +19,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import prv.rcl.controller.CustomerAuthenticationFilter;
 import prv.rcl.controller.JwtAuthenticationFilter;
+import prv.rcl.utils.JwtUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +50,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
                                             UserDetailsService userDetailsService,
-                                            AuthenticationManagerBuilder builder) throws Exception {
+                                            AuthenticationManagerBuilder builder,
+                                            JwtUtils jwtUtils) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/public/**").permitAll()
                 .anyRequest().authenticated();
@@ -88,8 +90,8 @@ public class SecurityConfig {
                 )));
         http.userDetailsService(userDetailsService);
         CustomerAuthenticationFilter cusF = customerAuthenticationFilter(builder);
-        JwtAuthenticationFilter authenticationFilter = jwtAuthenticationFilter(builder);
-        http.addFilterBefore(authenticationFilter,UsernamePasswordAuthenticationFilter.class);
+        JwtAuthenticationFilter authenticationFilter = jwtAuthenticationFilter(jwtUtils);
+        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(cusF, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -102,13 +104,12 @@ public class SecurityConfig {
         return filter;
     }
 
-    JwtAuthenticationFilter jwtAuthenticationFilter(
-            AuthenticationManagerBuilder builder) {
-        JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter();
-        authenticationFilter.setHeader("token");
-        authenticationFilter.setAuthenticationManager(builder.getObject());
-        return authenticationFilter;
+    JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtils jwtUtils) {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtUtils);
+        jwtAuthenticationFilter.setHeader("token");
+        return jwtAuthenticationFilter;
     }
+
 
     @Bean
     WebSecurityCustomizer webSecurityCustomizer() {

@@ -24,4 +24,5 @@ public class UserController {
         LOGGER.info("request attribute userId is {}", uid);
         return userService.findById(uid).orElse(null);
     }
+
 }

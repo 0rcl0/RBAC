@@ -1,5 +1,6 @@
 package prv.rcl.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Entity;
@@ -11,9 +12,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "user_role")
 @EntityListeners(value = AuditingEntityListener.class)
-public class URRelationship extends PubColumn{
+public class URRelationship extends PubColumn {
 
     @ManyToOne
+    @JsonIgnore
     private User user;
 
     @ManyToOne
@@ -34,5 +36,13 @@ public class URRelationship extends PubColumn{
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    @Override
+    public String toString() {
+        return "URRelationship{" +
+                "user=" + user.getId() +
+                "role=" + role +
+                '}';
     }
 }
