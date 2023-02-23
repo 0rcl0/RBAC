@@ -29,7 +29,7 @@ public class AuthSuccessHandler implements AuthenticationSuccessHandler {
         ResponseUtils.setJsonUTF_8Response(response);
         HashMap<String, String> resMap = new HashMap<>();
         resMap.put("msg", "登录成功!");
-        // TODO 生成 TOKEN 存放等等
+        // TODO 生成 TOKEN  存储在 redis 或其他 等
         SysUser sysUser = (SysUser) authentication.getPrincipal();
         String token = jwtUtils.generateToken(sysUser);
         resMap.put("token", token);

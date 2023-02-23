@@ -66,7 +66,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
                 emptyContext.setAuthentication(authenticated);
                 SecurityContextHolder.setContext(emptyContext);
-                request.setAttribute(getAlreadyFilteredAttributeName(), "FILTER");
             } catch (JsonProcessingException e) {
                 filterChain.doFilter(request, response);
             }

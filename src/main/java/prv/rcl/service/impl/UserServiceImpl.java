@@ -6,11 +6,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import prv.rcl.dao.UserDao;
 import prv.rcl.entity.SysUser;
 import prv.rcl.entity.User;
 import prv.rcl.service.UserService;
+import sun.security.util.Password;
 
 import java.util.Optional;
 
@@ -24,16 +27,24 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
 
     private final UserDao userDao;
 
+    private final PasswordEncoder passwordEncoder;
+
     private final static Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 
-    public UserServiceImpl(UserDao userDao) {
+    public UserServiceImpl(UserDao userDao,PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public <S extends User> S save(S entity) {
         LOGGER.info("非空校验!");
+        //设置加密密码
+        String password = entity.getPassword();
+        if(StringUtils.hasText(password)) {
+            entity.setPassword(passwordEncoder.encode(password));
+        }
         return userDao.save(entity);
     }
 
@@ -48,18 +59,17 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
         return userDao.findById(id);
     }
 
+    /**
+     * 登陆成功后密码自动升级
+     * @param user the user to modify the password for
+     * @param newPassword the password to change to, encoded by the configured
+     * {@code PasswordEncoder}
+     * @return {@link SysUser} 系统用户
+     */
     @Override
     public UserDetails updatePassword(UserDetails user, String newPassword) {
         SysUser sysUser = (SysUser) user;
         User us = sysUser.getUser();
-//        boolean hasAdminRole = us.getRelationships().stream()
-//                .map(URRelationship::getRole)
-//                .map(Role::getName)
-//                .anyMatch(s -> s.equalsIgnoreCase("ADMIN"));
-//        // 不执行 update Password 操作
-//        if(hasAdminRole) {
-//            return sysUser;
-//        }else{
         us.setPassword(newPassword);
         LOGGER.debug("user{} update password", us.getId());
         userDao.save(us);
