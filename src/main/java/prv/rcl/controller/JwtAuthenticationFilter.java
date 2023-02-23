@@ -51,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader(getHeader());
         if (authHeader == null) {
-            request.setAttribute(getAlreadyFilteredAttributeName(), "FILTER");
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -74,13 +74,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    @Override
-    protected String getAlreadyFilteredAttributeName() {
-        String name = getFilterName();
-        if (name == null) {
-            name = getClass().getName();
-        }
-        return name + FILTERED_ATT;
-    }
-    
+
 }

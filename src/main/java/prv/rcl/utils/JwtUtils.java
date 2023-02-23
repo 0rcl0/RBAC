@@ -1,13 +1,17 @@
 package prv.rcl.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import prv.rcl.entity.SysUser;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,7 +33,14 @@ public class JwtUtils {
 
 //    private final String SECRET = ISSUER;
 
-    public String generateToke(Map<String, Object> claimMaps) {
+    public String generateToken(SysUser sysUser) throws JsonProcessingException {
+        String userJson = new ObjectMapper().writeValueAsString(sysUser.getUser());
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("user", userJson);
+        return generateToken(map);
+    }
+
+    public String generateToken(Map<String, Object> claimMaps) {
 
         long now = System.currentTimeMillis();
         Date expireDate = new Date(now + EXPIRE_TIME);

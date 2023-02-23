@@ -14,7 +14,6 @@ import prv.rcl.dao.RoleDao;
 import prv.rcl.dao.UserDao;
 import prv.rcl.dao.UserRoleDao;
 import prv.rcl.entity.Role;
-import prv.rcl.entity.SysUser;
 import prv.rcl.entity.URRelationship;
 import prv.rcl.entity.User;
 import prv.rcl.utils.JwtUtils;
@@ -103,11 +102,10 @@ class RbacApplicationTests {
     @Test
     void testJwtUtils() throws JsonProcessingException {
         Optional<User> user = userDao.findByName("rcl111222");
-        SysUser sysUser = new SysUser(user.get());
         String userJson = new ObjectMapper().writeValueAsString(user.get());
         HashMap<String, Object> map = new HashMap<>();
         map.put("user", userJson);
-        String s = jwtUtils.generateToke(map);
+        String s = jwtUtils.generateToken(map);
         System.out.println(s);
         Claims claimsFromToken = jwtUtils.getAllClaimsFromToken(s);
         jwtUtils.verity(s);

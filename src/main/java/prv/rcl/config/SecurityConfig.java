@@ -3,10 +3,10 @@ package prv.rcl.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -19,6 +19,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import prv.rcl.controller.CustomerAuthenticationFilter;
 import prv.rcl.controller.JwtAuthenticationFilter;
+import prv.rcl.handler.AccessDenyHandler;
+import prv.rcl.handler.AuthFailureHandler;
+import prv.rcl.handler.AuthSuccessHandler;
+import prv.rcl.handler.JsonEntryPointHandler;
 import prv.rcl.utils.JwtUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +31,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     /**
@@ -51,7 +56,8 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http,
                                             UserDetailsService userDetailsService,
                                             AuthenticationManagerBuilder builder,
-                                            JwtUtils jwtUtils) throws Exception {
+                                            JwtUtils jwtUtils,
+                                            AuthSuccessHandler authSuccessHandler) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/public/**").permitAll()
                 .anyRequest().authenticated();
@@ -62,17 +68,13 @@ public class SecurityConfig {
 
         http.formLogin()
                 .loginProcessingUrl("/login")
+                .successHandler(authSuccessHandler)
+                .failureHandler(new AuthFailureHandler())
                 .permitAll();
 
         http.exceptionHandling()
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    setResponseType(response);
-                    ResponseEntity<String> body = ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body("未登录！");
-                    String res = new ObjectMapper().writeValueAsString(body);
-                    response.getWriter().write(res);
-                });
+                .accessDeniedHandler(new AccessDenyHandler())
+                .authenticationEntryPoint(new JsonEntryPointHandler());
         http.logout()
                 .clearAuthentication(true)
                 .logoutSuccessHandler((request, response, authentication) -> {
@@ -89,7 +91,9 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/exit", "GET")
                 )));
         http.userDetailsService(userDetailsService);
+
         CustomerAuthenticationFilter cusF = customerAuthenticationFilter(builder);
+        cusF.setAuthenticationSuccessHandler(authSuccessHandler);
         JwtAuthenticationFilter authenticationFilter = jwtAuthenticationFilter(jwtUtils);
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(cusF, UsernamePasswordAuthenticationFilter.class);

@@ -2,19 +2,16 @@ package prv.rcl.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -22,8 +19,13 @@ import java.util.Map;
  */
 public class CustomerAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            return authentication;
+        }
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
             logger.info("CustomerAuthenticationFilter return", new Throwable("Request method not support"));
             return null;
@@ -47,14 +49,4 @@ public class CustomerAuthenticationFilter extends UsernamePasswordAuthentication
 
     }
 
-    @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        ResponseEntity<String> body = ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body("登录成功!");
-        String res = new ObjectMapper().writeValueAsString(body);
-        response.getWriter().write(res);
-    }
 }
