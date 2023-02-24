@@ -31,6 +31,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+//开启全局方法权限
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
@@ -128,9 +129,5 @@ public class SecurityConfig {
         };
     }
 
-    public void setResponseType(HttpServletResponse response) {
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    }
 
 }
