@@ -58,6 +58,7 @@ public class SecurityConfig {
                                             AuthenticationManagerBuilder builder,
                                             JwtUtils jwtUtils,
                                             AuthSuccessHandler authSuccessHandler) throws Exception {
+        // 认证请求
         http.authorizeRequests()
                 .antMatchers("/public/**").permitAll()
                 .anyRequest().authenticated();
@@ -92,6 +93,8 @@ public class SecurityConfig {
                 )));
         http.userDetailsService(userDetailsService);
 
+
+        // 过滤器添加
         CustomerAuthenticationFilter cusF = customerAuthenticationFilter(builder);
         cusF.setAuthenticationSuccessHandler(authSuccessHandler);
         JwtAuthenticationFilter authenticationFilter = jwtAuthenticationFilter(jwtUtils);

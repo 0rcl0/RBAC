@@ -110,4 +110,18 @@ class RbacApplicationTests {
         Claims claimsFromToken = jwtUtils.getAllClaimsFromToken(s);
         jwtUtils.verity(s);
     }
+
+
+    @Test
+    void mockUser() {
+        List<Role> all = roleDao.findAll();
+        URRelationship urRelationship = new URRelationship();
+        User user = new User();
+        user.setId(1L);
+        Role role = new Role();
+        role.setId(4L);
+        urRelationship.setUser(user);
+        urRelationship.setRole(role);
+        userRoleDao.save(urRelationship);
+    }
 }

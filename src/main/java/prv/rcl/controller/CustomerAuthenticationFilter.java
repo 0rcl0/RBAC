@@ -2,6 +2,7 @@ package prv.rcl.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -18,6 +19,10 @@ import java.util.Map;
  * 增加过滤器，POST  application-json 格式的请求才能被处理
  */
 public class CustomerAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+
+    public CustomerAuthenticationFilter() {
+    }
 
 
     @Override
@@ -40,13 +45,15 @@ public class CustomerAuthenticationFilter extends UsernamePasswordAuthentication
             username = username != null ? username : "";
             String password = map.get(getPasswordParameter());
             password = password != null ? password : "";
+            if ("".equals(username) || "".equals(password)) {
+                throw new AuthenticationServiceException("用户名或密码未填写!");
+            }
             UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
             setDetails(request, authRequest);
             return this.getAuthenticationManager().authenticate(authRequest);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
 }

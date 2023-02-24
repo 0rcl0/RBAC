@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +24,10 @@ public class SysUser implements UserDetails {
 
     public User getUser() {
         return user;
+    }
+
+    public Optional<User> getOpUser() {
+        return Optional.ofNullable(user);
     }
 
     public void setUser(User user) {

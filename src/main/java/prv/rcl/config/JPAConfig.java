@@ -2,14 +2,16 @@ package prv.rcl.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.domain.AuditorAware;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@Configuration
-@EnableJpaAuditing
+//@Configuration
+//@EnableJpaAuditing
 public class JPAConfig {
 
+    /**
+     * 注入 动态获取 modify people modify time
+     *
+     * @return 编辑注入
+     */
     @Bean
     @ConditionalOnMissingBean(name = "auditorAware")
     MyAuditorAwareImpl auditorAware() {

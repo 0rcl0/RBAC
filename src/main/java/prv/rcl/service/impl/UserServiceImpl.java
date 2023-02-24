@@ -11,6 +11,7 @@ import prv.rcl.dao.UserDao;
 import prv.rcl.entity.SysUser;
 import prv.rcl.entity.User;
 import prv.rcl.service.UserService;
+import prv.rcl.utils.VerifyUtils;
 
 import java.util.Optional;
 
@@ -69,8 +70,28 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDao.findByName(username)
+        // 根据 load 的 用户名判断是邮箱登录还是用户名登录
+        boolean isEmailLogin = VerifyUtils.verifyEmail(username);
+        if (isEmailLogin) {
+            return findUserByEmail(username);
+        } else {
+            return findUserByUsername(username);
+        }
+    }
+
+    public SysUser findUserByEmail(String email) {
+        return userDao.findByEmail(email)
+                .map(SysUser::new)
+                .orElseThrow(() -> new UsernameNotFoundException("邮箱:" + email + "未录入!"));
+    }
+
+    public SysUser findUserByUsername(String username) {
+        return userDao.findByName(username)
+                .map(SysUser::new)
                 .orElseThrow(() -> new UsernameNotFoundException("用户:" + username + "未找到!"));
-        return new SysUser(user);
+    }
+
+    public User addRole(Long roleId) {
+        return null;
     }
 }
