@@ -9,11 +9,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import prv.rcl.dao.RoleDao;
 import prv.rcl.dao.UserDao;
+import prv.rcl.dao.UserRoleDao;
+import prv.rcl.entity.Role;
 import prv.rcl.entity.SysUser;
+import prv.rcl.entity.URRelationship;
 import prv.rcl.entity.User;
 import prv.rcl.service.UserService;
-import prv.rcl.utils.VerifyUtils;
+import sun.security.util.Password;
 
 import java.util.Optional;
 
@@ -29,12 +33,18 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
 
     private final PasswordEncoder passwordEncoder;
 
+    private final RoleDao roleDao;
+
+    private final UserRoleDao userRoleDao;
+
     private final static Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 
-    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserDao userDao,PasswordEncoder passwordEncoder,RoleDao roleDao,UserRoleDao userRoleDao) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
+        this.roleDao = roleDao;
+        this.userRoleDao = userRoleDao;
     }
 
     @Override
@@ -42,7 +52,7 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
         LOGGER.info("非空校验!");
         //设置加密密码
         String password = entity.getPassword();
-        if (StringUtils.hasText(password)) {
+        if(StringUtils.hasText(password)) {
             entity.setPassword(passwordEncoder.encode(password));
         }
         return userDao.save(entity);
@@ -61,10 +71,9 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
 
     /**
      * 登陆成功后密码自动升级
-     *
-     * @param user        the user to modify the password for
+     * @param user the user to modify the password for
      * @param newPassword the password to change to, encoded by the configured
-     *                    {@code PasswordEncoder}
+     * {@code PasswordEncoder}
      * @return {@link SysUser} 系统用户
      */
     @Override
@@ -80,28 +89,21 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 根据 load 的 用户名判断是邮箱登录还是用户名登录
-        boolean isEmailLogin = VerifyUtils.verifyEmail(username);
-        if (isEmailLogin) {
-            return findUserByEmail(username);
-        } else {
-            return findUserByUsername(username);
-        }
-    }
-
-    public SysUser findUserByEmail(String email) {
-        return userDao.findByEmail(email)
-                .map(SysUser::new)
-                .orElseThrow(() -> new UsernameNotFoundException("邮箱:" + email + "未录入!"));
-    }
-
-    public SysUser findUserByUsername(String username) {
-        return userDao.findByName(username)
-                .map(SysUser::new)
+        User user = userDao.findByName(username)
                 .orElseThrow(() -> new UsernameNotFoundException("用户:" + username + "未找到!"));
+        return new SysUser(user);
     }
 
-    public User addRole(Long roleId) {
-        return null;
+    /**
+     * 给定 user 增加角色
+     * @param uid userId
+     * @param rid roleId
+     */
+    @Override
+    public void addRole(Long uid, Long rid) {
+        Optional<User> user = userDao.findById(uid);
+        Optional<Role> role = roleDao.findById(rid);
+        URRelationship urRelationship = user.flatMap(u -> role.map(r -> new URRelationship(u, r))).orElse(null);
+        userRoleDao.save(urRelationship);
     }
 }

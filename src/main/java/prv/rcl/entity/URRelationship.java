@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.Optional;
 
 
 @Entity
@@ -21,6 +22,13 @@ public class URRelationship extends PubColumn {
     @ManyToOne
     private Role role;
 
+    public URRelationship() {
+    }
+
+    public URRelationship(User user, Role role) {
+        this.user = user;
+        this.role = role;
+    }
 
     public User getUser() {
         return user;
