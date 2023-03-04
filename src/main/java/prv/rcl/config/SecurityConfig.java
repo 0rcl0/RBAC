@@ -62,9 +62,14 @@ public class SecurityConfig {
         // 认证请求
         http.authorizeRequests()
                 .antMatchers("/public/**").permitAll()
+                .antMatchers("/resources/**").permitAll()
+                // 解决resource 下添加了网站图标后网站不现实问题
+                .antMatchers("/favicon.ico").permitAll()
+                .antMatchers("/actuator").permitAll()
                 .anyRequest().authenticated();
-
         http.cors().disable();
+
+        http.httpBasic();
 
         http.csrf().disable();
 
@@ -122,8 +127,6 @@ public class SecurityConfig {
     @Bean
     WebSecurityCustomizer webSecurityCustomizer() {
         return web -> {
-            // 不会进入 过滤器链中
-            web.ignoring().antMatchers("/resource/**");
             // 开启 debugger
             web.debug(true);
         };
