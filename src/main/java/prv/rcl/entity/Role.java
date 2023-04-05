@@ -1,6 +1,7 @@
 package prv.rcl.entity;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Entity
 @EntityListeners(value = AuditingEntityListener.class)
-public class Role extends PubColumn {
+public class Role extends PubColumn   {
 
     @Column(
             name = "name",
@@ -51,4 +52,5 @@ public class Role extends PubColumn {
                 ", remark='" + remark + '\'' +
                 '}';
     }
+
 }
