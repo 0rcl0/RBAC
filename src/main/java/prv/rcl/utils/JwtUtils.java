@@ -6,14 +6,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import prv.rcl.entity.SysUser;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class JwtUtils {
@@ -29,7 +28,8 @@ public class JwtUtils {
 
     private SignatureAlgorithm alg = SignatureAlgorithm.HS256;
 
-    private long EXPIRE_TIME = 3 * 24 * 60 * 60 * 1000;
+
+    private final long EXPIRE_TIME = 3 * 24 * 60 * 60 * 1000;
 
 //    private final String SECRET = ISSUER;
 
@@ -41,7 +41,6 @@ public class JwtUtils {
     }
 
     public String generateToken(Map<String, Object> claimMaps) {
-
         long now = System.currentTimeMillis();
         Date expireDate = new Date(now + EXPIRE_TIME);
         return Jwts.builder()

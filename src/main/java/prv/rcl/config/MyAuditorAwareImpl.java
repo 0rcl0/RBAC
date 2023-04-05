@@ -19,6 +19,12 @@ import java.util.Optional;
  * {@link LastModifiedDate}
  */
 public class MyAuditorAwareImpl implements AuditorAware<Long> {
+
+    /**
+     * 这里可以自定义一个类吗？
+     * 根据配置不一样，获取用户的地方不同
+     * @return userId
+     */
     @Override
     public Optional<Long> getCurrentAuditor() {
         // 获取当前登录人信息 Security 中获取

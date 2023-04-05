@@ -9,7 +9,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Optional;
 
-
+/**
+ * 用户角色中间表
+ */
 @Entity
 @Table(name = "user_role")
 @EntityListeners(value = AuditingEntityListener.class)

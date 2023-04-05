@@ -94,16 +94,4 @@ public class UserServiceImpl implements UserService, UserDetailsService, UserDet
         return new SysUser(user);
     }
 
-    /**
-     * 给定 user 增加角色
-     * @param uid userId
-     * @param rid roleId
-     */
-    @Override
-    public void addRole(Long uid, Long rid) {
-        Optional<User> user = userDao.findById(uid);
-        Optional<Role> role = roleDao.findById(rid);
-        URRelationship urRelationship = user.flatMap(u -> role.map(r -> new URRelationship(u, r))).orElse(null);
-        userRoleDao.save(urRelationship);
-    }
 }

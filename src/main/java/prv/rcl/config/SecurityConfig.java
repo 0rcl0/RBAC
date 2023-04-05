@@ -85,7 +85,6 @@ public class SecurityConfig {
         http.logout()
                 .clearAuthentication(true)
                 .logoutSuccessHandler((request, response, authentication) -> {
-//                    setResponseType(response);
                     ResponseEntity<String> body = ResponseEntity
                             .ok()
                             .contentType(MediaType.APPLICATION_JSON)
@@ -109,7 +108,11 @@ public class SecurityConfig {
         return http.build();
     }
 
-
+    /**
+     * 自定义认证过滤器  JSON 格式登录
+     * @param builder 传人一个 builder 对象
+     * @return 过滤器
+     */
     CustomerAuthenticationFilter customerAuthenticationFilter(
             AuthenticationManagerBuilder builder) {
         CustomerAuthenticationFilter filter = new CustomerAuthenticationFilter();
@@ -117,6 +120,11 @@ public class SecurityConfig {
         return filter;
     }
 
+    /**
+     * JWT 认证过滤器
+     * @param jwtUtils 传人 jwtUtils
+     * @return 过滤器
+     */
     JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtils jwtUtils) {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtUtils);
         jwtAuthenticationFilter.setHeader("token");
